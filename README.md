@@ -1,12 +1,11 @@
 #go-bots
----
 
 Client/Server Turn based code game
 
 The goal of this game is to create Bots and make them compete against each other. To create a bot, you have to write code!
 
 ###Rules of the game
-- A game is 20x20 square. Each square can contain:
+- A game has a 20x20 squares board. Each square can contain:
     - A bot
     - A power-up
     - A wall
@@ -55,34 +54,53 @@ Client and server will talk a simple json protocol over TCP
 
 **Client**
 
-`{"request":"create_game", "name":"name of the game", "password":"password to join game"}`
+    {
+        "request":"create_game",
+        "name":"name of the game",
+        "bot_name":"name of your bot",
+        "password":"password to join game"
+    }
 
 **Server reply**
 
-`{"response":"created|error", "error":"error message if any", "game_id":"id of game", "client_id":"id of client"}`
+    {
+        "response":"created|error",
+        "error":"error message if any",
+        "game_id":"id of game",
+        "client_id":"id of client"
+    }
 
 ###To join a game
 
 **Client**
 
-`{"request":"join_game", "game_id":"id of game to join"}`
+    {
+        "request":"join_game",
+        "game_id":"id of game to join",
+        "password":"password of the game",
+        "bot_name": "name of your bot"
+    }
 
 **Server reply**
 
-`{"response":"joined|error", "error":"error message if any", "client_id":"id of client"}`
+    {
+        "response":"joined|error",
+        "error":"error message if any",
+        "client_id":"id of client"
+    }
 
 ###To play a turn
 
 **Server**
 
     {
-        "request":"play", 
-        "client_id":"id of client", 
+        "request":"play",
+        "client_id":"id of client",
         "context":{
             "hp":100,
             "missile":2,
             "under_attack":true,
-            "position":[2,2], 
+            "position":[2,2],
             "square":[
                 {
                     "position":[1,1],
@@ -94,13 +112,13 @@ Client and server will talk a simple json protocol over TCP
                         "hp":100,
                         "under_attack":false
                     }
-                },          
+                },
                 {
                     "position":[1,2],
                     "type":"empty|wall|powerup|bot",
                     "powerup":{type:"nitro|vision|missile|repair"},
                     "bot":{}
-                },                
+                },
                 ...
             ]
         }
