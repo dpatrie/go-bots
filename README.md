@@ -26,6 +26,7 @@ The goal of this game is to create Bots and make them compete against each other
     - Missile crate (Gets 2 additional long range missiles)
     - Super vision (Can see the same thing as "Look around" for 2 turns)
     - Repair kit (Get back 25 hp, up to 100)
+    - Super Shield (Invisible for 3 turn)
 - Power-up's will appear randomly on the game board
 
 
@@ -55,69 +56,71 @@ Client and server will talk a simple json protocol over TCP
 **Client**
 
     {
-        "request":"create_game",
-        "name":"name of the game",
-        "bot_name":"name of your bot",
-        "password":"password to join game"
+        "request":"createGame",
+        "param": {
+            "name":"name of the game",
+            "botName":"name of your bot",
+        }
     }
 
-**Server reply**
+**Server reply (on success)**
 
-    {
-        "response":"created|error",
-        "error":"error message if any",
-        "game_id":"id of game",
-        "client_id":"id of client"
-    }
+    {"response":"ok", "gameId": 1}
+    
+**Server reply (on error)**
+
+    {"response":"error", "message":"error message"}
+
 
 ###To join a game
 
 **Client**
 
     {
-        "request":"join_game",
-        "game_id":"id of game to join",
-        "password":"password of the game",
-        "bot_name": "name of your bot"
+        "request":"joinGame",
+        "param": {
+            "gameId":1,
+            "botName": "name of your bot"
+        }
     }
 
-**Server reply**
+**Server reply (on success)**
 
-    {
-        "response":"joined|error",
-        "error":"error message if any",
-        "client_id":"id of client"
-    }
+    {"response":"ok"}
+
+**Server reply (on error)**
+
+    {"response":"error", "message":"error message"}
 
 ###To play a turn
+
+Server will contact the client every turn with the context
 
 **Server**
 
     {
         "request":"play",
-        "client_id":"id of client",
-        "context":{
-            "hp":100,
-            "missile":2,
-            "under_attack":true,
-            "position":[2,2],
-            "square":[
+        "param": {
+            "bot" : {
+                "name":"name of the bot",
+                "hitPoint":100,
+                "missileCount":2,
+                "underAttack":false,
+                "activePowerUp": ["nitroBoost", "superVision"],
+                "position":{"x":2,"y":2}
+            }
+            "squares":[
                 {
-                    "position":[1,1],
+                    "position: {"x":2, "y":2},
                     "type":"empty|wall|powerup|bot",
-                    "powerup":{},
+                    "powerup":"nitroBoost|superVision|missileCrate|superShield",
                     "bot":{
-                        "client_id":"",
-                        "name":"",
+                        "name":"name of the bot",
                         "hp":100,
-                        "under_attack":false
+                        "missileCount": 1,
+                        "underAttack":false,
+                        "activePowerUp": ["nitroBoost", "superVision"],                            
                     }
-                },
-                {
-                    "position":[1,2],
-                    "type":"empty|wall|powerup|bot",
-                    "powerup":{type:"nitro|vision|missile|repair"},
-                    "bot":{}
                 },
                 ...
             ]
@@ -126,7 +129,12 @@ Client and server will talk a simple json protocol over TCP
 
 **Client**
 
-    {
-        "response":"look|defend|move|attack|missile",
-        "position":[3,3]
-    }
+    {"response":"look|defend|move|attack|missile", "param" : {"x": 3, "y": 3}}
+
+**Server reply (on success)**
+
+    {"response":"ok"}
+
+**Server reply (on error)**
+
+    {"response":"error", "message":"error message"}
