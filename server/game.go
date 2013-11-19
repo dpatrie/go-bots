@@ -1,12 +1,11 @@
 package server
 
 import (
-	"errors"
 	"net"
 	"sync"
 )
 
-type GameList []Game
+type GameList []*Game
 
 type Game struct {
 	sync.Mutex
@@ -15,11 +14,10 @@ type Game struct {
 	Board   Board
 }
 
-func NewGame(gameName string, botName string, conn net.Conn) (Game, error) {
-	g := Game{
-		Name:    gameName,
-		Players: make(PlayerList),
-		Board:   NewBoard(20, 20),
+func NewGame(gameName string, botName string, conn net.Conn) (*Game, error) {
+	g := &Game{
+		Name:  gameName,
+		Board: NewBoard(20, 20),
 	}
 
 	g.Lock()

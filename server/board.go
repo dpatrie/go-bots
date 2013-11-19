@@ -2,6 +2,7 @@ package server
 
 import (
 	"math/rand"
+	"time"
 )
 
 type SquareType string
@@ -75,10 +76,7 @@ func NewBoard(width int, height int) Board {
 	board := make(Board, height)
 	for x, _ := range board {
 		board[x] = make(BoardRow, width)
-
 		for y, _ := range board[x] {
-			s := &Square{X: x, Y: y}
-			s.Randomize()
 			board[x][y] = NewRandomSquare(x, y)
 		}
 	}

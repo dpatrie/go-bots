@@ -6,13 +6,12 @@ import (
 
 func NewPlayer(botName string, botSpawnX int, botSpawnY int, conn net.Conn) (Player, error) {
 	b := Bot{
-		X:             botSpawnX,
-		Y:             botSpawnY,
-		Name:          botName,
-		HitPoint:      BOT_DEFAULT_HP,
-		MissileCount:  BOT_DEFAULT_MISSILE_COUNT,
-		UnderAttack:   false,
-		ActivePowerUp: make([]PowerUp),
+		X:            botSpawnX,
+		Y:            botSpawnY,
+		Name:         botName,
+		HitPoint:     BOT_DEFAULT_HP,
+		MissileCount: BOT_DEFAULT_MISSILE_COUNT,
+		UnderAttack:  false,
 	}
 
 	p := Player{

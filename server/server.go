@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net"
 	"sync"
@@ -21,7 +22,6 @@ type ServerConfig struct {
 func New(config ServerConfig) *Server {
 	return &Server{
 		Config: config,
-		Games:  make(GameList, config.MaxGame),
 	}
 }
 
@@ -111,14 +111,16 @@ func (s *Server) newGame(req StandardRequest, conn net.Conn) (int, error) {
 
 	s.Lock()
 	defer s.Unlock()
-	g, err := NewGame(gameName, botName, conn)
+	g, err := NewGame(gameName.(string), botName.(string), conn)
 	if err != nil {
 		return 0, err
 	}
 
 	s.Games = append(s.Games, g)
 
-	return (len(s.Games) - 1), nil
+	//Don't forget that the actual game in the slice
+	//will be gameId - 1
+	return len(s.Games), nil
 }
 
 func (s *Server) joinGame(req StandardRequest, conn net.Conn) error {

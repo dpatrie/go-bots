@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net"
-	"time"
 )
 
 func main() {
@@ -16,7 +15,6 @@ func main() {
 		// conn.Write([]byte(`Craps out`))
 		conn.Read(buf)
 		log.Printf("[Client]: %s", buf)
-		time.Sleep(10 * time.Second)
 	}
 
 }
