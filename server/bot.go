@@ -1,9 +1,15 @@
 package server
 
+const (
+	BOT_DEFAULT_HP            = 100
+	BOT_DEFAULT_MISSILE_COUNT = 2
+)
+
 type Bot struct {
+	X             int
+	Y             int
 	Name          string
 	HitPoint      int
-	Position      Coord
 	MissileCount  int
 	UnderAttack   bool
 	ActivePowerUp []PowerUp

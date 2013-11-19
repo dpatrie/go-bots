@@ -11,9 +11,13 @@ const (
 	ResponseOk          string = `{"response":"ok"}`
 	ResponseGameCreated string = `{"response":"ok", "gameId":%d}`
 	RequestPlay         string = `{"request":"play", "param":%s}`
+
+	RequestCreateGame string = "createGame"
+	RequestJoinGame   string = "joinGame"
 )
 
 func getErrorResponse(err string) []byte {
+	log.Println(err)
 	r := fmt.Sprintf(ResponseError, err)
 	return []byte(r)
 }
@@ -27,7 +31,7 @@ func getGameCreatedResponse(gameId int) []byte {
 	return []byte(r)
 }
 
-func getPlayRequest(bot *Bot, squares SquareList) ([]byte, error) {
+func getPlayRequest(bot *Bot, squares []Square) ([]byte, error) {
 	r, err := json.Marshal(PlayParam{bot, squares})
 	if err != nil {
 		log.Println(err.Error())
@@ -38,6 +42,11 @@ func getPlayRequest(bot *Bot, squares SquareList) ([]byte, error) {
 }
 
 type PlayParam struct {
-	Bot     *Bot       `json:"bot"`
-	Squares SquareList `json:"squares"`
+	Bot     *Bot     `json:"bot"`
+	Squares []Square `json:"squares"`
+}
+
+type StandardRequest struct {
+	Request string                 `json:"request"`
+	Param   map[string]interface{} `json:"param"`
 }

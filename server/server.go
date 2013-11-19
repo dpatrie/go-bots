@@ -1,9 +1,10 @@
 package server
 
 import (
-	"github.com/bitly/go-simplejson"
+	"encoding/json"
 	"log"
 	"net"
+	"sync"
 )
 
 const (
@@ -25,6 +26,7 @@ func New(config ServerConfig) *Server {
 }
 
 type Server struct {
+	sync.Mutex
 	Config ServerConfig
 	Games  GameList
 }
@@ -48,46 +50,77 @@ func (s *Server) Listen() {
 }
 
 func (s *Server) acceptConn(conn net.Conn) {
-	//Look for the initial request. It should be a create or a join game.
-
 	buf := make([]byte, RCV_BUFFER_SIZE)
 
-	_, err := conn.Read(buf)
+	numBytes, err := conn.Read(buf)
 	if err != nil {
-		log.Println(err.Error())
 		//We won't accept this incomming connection
+		log.Println(err.Error())
+		conn.Close()
 		return
 	}
 
-	_, err = simplejson.NewJson(buf)
-	if err != nil {
-		log.Println(err.Error())
+	req := StandardRequest{}
+	if err = json.Unmarshal(buf[:numBytes], &req); err != nil {
 		conn.Write(getErrorResponse(err.Error()))
+		conn.Close()
 		return
+	}
+
+	var reply []byte
+	closeConn := false
+
+	switch req.Request {
+	case RequestCreateGame:
+		gameId, err := s.newGame(req, conn)
+		if err != nil {
+			reply = getErrorResponse(err.Error())
+			closeConn = true
+		} else {
+			reply = getGameCreatedResponse(gameId)
+		}
+	case RequestJoinGame:
+		err = s.joinGame(req, conn)
+		if err != nil {
+			reply = getErrorResponse(err.Error())
+			closeConn = true
+		} else {
+			reply = getOkResponse()
+		}
+	default:
+		reply = getErrorResponse("invalid request")
+		closeConn = true
+	}
+
+	conn.Write(reply)
+	if closeConn {
+		conn.Close()
 	}
 }
 
-// func (s *Server) readFromConn(conn net.Conn) {
-// 	continueReading := true
+func (s *Server) newGame(req StandardRequest, conn net.Conn) (int, error) {
+	gameName, found := req.Param["name"]
+	if !found {
+		return 0, errors.New("Missing parameters: name")
+	}
 
-// 	for continueReading {
-// 		buf := make([]byte, RCV_BUFFER_SIZE)
-// 		n, err := conn.Read(buf)
-// 		if err != nil {
-// 			continueReading = false
-// 			log.Println(err.Error())
-// 		}
+	botName, found := req.Param["botName"]
+	if !found {
+		return 0, errors.New("Missing parameters: botName")
+	}
 
-// 		continueReading = s.DispatchMessage(buf)
-// 	}
-// }
+	s.Lock()
+	defer s.Unlock()
+	g, err := NewGame(gameName, botName, conn)
+	if err != nil {
+		return 0, err
+	}
 
-// func (s *Server) NewGame(gameName string) (GameId string, ClientId string, err error) {
-//Create new game struct
-//Initialize board
-//Initialize first client
-// }
+	s.Games = append(s.Games, g)
 
-// func (s *Server) JoinGame(GameId string) (ClientId string, err error) {
+	return (len(s.Games) - 1), nil
+}
 
-// }
+func (s *Server) joinGame(req StandardRequest, conn net.Conn) error {
+	return nil
+}
