@@ -171,6 +171,10 @@ func (s *Server) listGame() []GameDescription {
 	defer s.Unlock()
 
 	for id, game := range s.Games {
+		if len(game.Players) >= s.Config.MaxPlayerPerGame {
+			continue
+		}
+
 		d := GameDescription{
 			Id:   id + 1,
 			Name: game.Name,
