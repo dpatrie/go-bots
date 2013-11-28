@@ -11,7 +11,6 @@ The goal of this game is to create Bots and make them compete against each other
     - A wall
     - Nothing
 - Winner is the last bots standing or all bots still alive after 1000 turns.
-- Order of play will randomize every 5 turns
 - Each game can have 2 to 10 bots
 - Each bot has 100 hit point
 - Every turn, your bot receive information about nearby square (immediate) on the board
@@ -51,6 +50,35 @@ The goal of this game is to create Bots and make them compete against each other
 ##Protocol
 Client and server will talk a simple json protocol over TCP
 
+###To list existing game
+See existing game with remaining spot
+
+**Client**
+
+    {"request":"listGame"}
+
+**Server reply (on success)**
+
+    {
+        "response":"ok", 
+        "games":[
+            {            
+                "id" : 1,
+                "name":"name of the game",
+                "bots":[
+                    "botName1",
+                    "botName2",
+                    ...
+                ]
+           },
+           ...                    
+        ]
+    }
+
+**Server reply (on error)**
+
+    {"response":"error", "message":"error message"}
+
 ###To create a game
 The game will automatically start after 60 seconds
 
@@ -61,8 +89,15 @@ The game will automatically start after 60 seconds
         "param": {
             "name":"name of the game",
             "botName":"name of your bot",
+            "width":30,
+            "height":30
         }
     }
+    
+**Optional**
+
+- width (default 20)
+- height (default 20)
 
 **Server reply (on success)**
 

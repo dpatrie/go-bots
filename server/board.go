@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+const (
+	BOARD_DEFAULT_WIDTH  = 20
+	BOARD_DEFAULT_HEIGHT = 20
+)
+
 type Board []BoardRow
 type BoardRow []*Square
 

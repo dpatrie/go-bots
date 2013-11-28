@@ -7,8 +7,8 @@ import (
 func main() {
 	config := server.ServerConfig{
 		Host:             "0.0.0.0:6666",
-		MaxGame:          10,
-		MaxClientPerGame: 10,
+		MaxGame:          5,
+		MaxPlayerPerGame: 10,
 	}
 
 	s := server.New(config)
