@@ -19,20 +19,19 @@ type ServerConfig struct {
 	MaxClientPerGame int
 }
 
-func New(config ServerConfig) *Server {
-	return &Server{
-		Config: config,
-	}
-}
-
 type Server struct {
 	sync.Mutex
 	Config ServerConfig
 	Games  GameList
 }
 
-func (s *Server) Listen() {
+func New(config ServerConfig) *Server {
+	return &Server{
+		Config: config,
+	}
+}
 
+func (s *Server) Listen() {
 	listener, err := net.Listen("tcp", s.Config.Host)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -60,8 +59,8 @@ func (s *Server) acceptConn(conn net.Conn) {
 		return
 	}
 
-	req := StandardRequest{}
-	if err = json.Unmarshal(buf[:numBytes], &req); err != nil {
+	r := StandardRequest{}
+	if err = json.Unmarshal(buf[:numBytes], &r); err != nil {
 		conn.Write(getErrorResponse(err.Error()))
 		conn.Close()
 		return
@@ -70,9 +69,9 @@ func (s *Server) acceptConn(conn net.Conn) {
 	var reply []byte
 	closeConn := false
 
-	switch req.Request {
+	switch r.Request {
 	case RequestCreateGame:
-		gameId, err := s.newGame(req, conn)
+		gameId, err := s.newGame(r, conn)
 		if err != nil {
 			reply = getErrorResponse(err.Error())
 			closeConn = true
@@ -80,7 +79,7 @@ func (s *Server) acceptConn(conn net.Conn) {
 			reply = getGameCreatedResponse(gameId)
 		}
 	case RequestJoinGame:
-		err = s.joinGame(req, conn)
+		err = s.joinGame(r, conn)
 		if err != nil {
 			reply = getErrorResponse(err.Error())
 			closeConn = true
@@ -118,8 +117,8 @@ func (s *Server) newGame(req StandardRequest, conn net.Conn) (int, error) {
 
 	s.Games = append(s.Games, g)
 
-	//Don't forget that the actual game in the slice
-	//will be gameId - 1
+	log.Printf("\n%s\n", g.Board.ConsoleRender())
+
 	return len(s.Games), nil
 }
 

@@ -1,75 +1,64 @@
 package server
 
 import (
+	"errors"
 	"math/rand"
+	"strings"
 	"time"
 )
 
-type SquareType string
-
-const (
-	SQUARE_EMPTY   SquareType = "empty"
-	SQUARE_WALL    SquareType = "wall"
-	SQUARE_BOT     SquareType = "bot"
-	SQUARE_POWERUP SquareType = "powerup"
-)
-
-func NewRandomSquare(x int, y int) *Square {
-	s := &Square{X: x, Y: y}
-
-	s.Type = getRandomSquareType()
-	if s.Type == SQUARE_POWERUP {
-		s.PowerUp = getRandomPowerUp()
-	}
-
-	return s
-}
-
-//TODO: Make it easy to change probabilities
-func getRandomSquareType() SquareType {
-	rand.Seed(time.Now().Unix())
-	dice := rand.Intn(100)
-
-	if dice < 75 {
-		return SQUARE_EMPTY
-	} else if dice < 95 {
-		return SQUARE_WALL
-	} else {
-		return SQUARE_POWERUP
-	}
-}
-
-func getRandomPowerUp() PowerUp {
-	rand.Seed(time.Now().Unix())
-
-	powerups := []PowerUp{
-		POWER_UP_NITRO_BOOST,
-		POWER_UP_MISSILE_CRATE,
-		POWER_UP_SUPER_VISION,
-		POWER_UP_REPAIR_KIT,
-		POWER_UP_SUPER_SHIELD,
-	}
-	return powerups[rand.Intn(len(powerups))]
-}
-
-type Square struct {
-	X       int
-	Y       int
-	Type    SquareType
-	PowerUp PowerUp
-	Bot     *Bot
-}
-
-type BoardRow []*Square
 type Board []BoardRow
+type BoardRow []*Square
 
-func (b Board) GetRandomSpawnXY() (x int, y int) {
-	// for {
+func (b Board) ConsoleRender() string {
+	var buf []string
 
-	// }
-	x = 0
-	y = 0
-	return
+	for _, row := range b {
+		for _, s := range row {
+			switch s.Type {
+			case SQUARE_EMPTY:
+				buf = append(buf, "\u2B1C ")
+			case SQUARE_POWERUP:
+				buf = append(buf, "P ")
+			case SQUARE_WALL:
+				buf = append(buf, "\u2B1B ")
+			case SQUARE_BOT:
+				buf = append(buf, "B ")
+			}
+		}
+		buf = append(buf, "\n")
+	}
+
+	return strings.Join(buf, "")
+}
+
+func (b Board) getRandomEmptySquare() *Square {
+	rand.Seed(time.Now().UnixNano())
+	maxX := len(b) - 1
+	maxY := len(b[0]) - 1
+
+	i := 0
+	for i < (maxX * maxY) {
+		x := rand.Intn(maxX)
+		y := rand.Intn(maxY)
+
+		if s := b[x][y]; s.Type == SQUARE_EMPTY {
+			return s
+		}
+		i++
+	}
+
+	return nil
+}
+
+func (b Board) Spawn(bot *Bot) error {
+	s := b.getRandomEmptySquare()
+	if s == nil {
+		return errors.New("Unable to spawn")
+	}
+	s.Type = SQUARE_BOT
+	s.Bot = bot
+	return nil
 }
 
 func NewBoard(width int, height int) Board {

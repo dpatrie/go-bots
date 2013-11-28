@@ -52,6 +52,7 @@ The goal of this game is to create Bots and make them compete against each other
 Client and server will talk a simple json protocol over TCP
 
 ###To create a game
+The game will automatically start after 60 seconds
 
 **Client**
 

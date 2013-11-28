@@ -23,13 +23,12 @@ func NewGame(gameName string, botName string, conn net.Conn) (*Game, error) {
 	g.Lock()
 	defer g.Unlock()
 
-	x, y := g.Board.GetRandomSpawnXY()
-	p, err := NewPlayer(botName, x, y, conn)
+	p, err := NewPlayer(botName, conn)
 	if err != nil {
 		return nil, err
 	}
-
 	g.Players = append(g.Players, p)
+	g.Board.Spawn(p.Bot)
 
 	return g, nil
 }

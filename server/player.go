@@ -4,17 +4,15 @@ import (
 	"net"
 )
 
-func NewPlayer(botName string, botSpawnX int, botSpawnY int, conn net.Conn) (Player, error) {
-	b := Bot{
-		X:            botSpawnX,
-		Y:            botSpawnY,
+func NewPlayer(botName string, conn net.Conn) (*Player, error) {
+	b := &Bot{
 		Name:         botName,
 		HitPoint:     BOT_DEFAULT_HP,
 		MissileCount: BOT_DEFAULT_MISSILE_COUNT,
 		UnderAttack:  false,
 	}
 
-	p := Player{
+	p := &Player{
 		Bot:  b,
 		Conn: conn,
 	}
@@ -23,12 +21,8 @@ func NewPlayer(botName string, botSpawnX int, botSpawnY int, conn net.Conn) (Pla
 }
 
 type Player struct {
-	Bot  Bot
+	Bot  *Bot
 	Conn net.Conn
 }
 
-type PlayerList []Player
-
-func (pl PlayerList) BroadCast(msg string) {
-
-}
+type PlayerList []*Player
