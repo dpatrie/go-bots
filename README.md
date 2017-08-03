@@ -1,10 +1,10 @@
-#go-bots
+# go-bots
 
 Client/Server Turn based code game
 
 The goal of this game is to create Bots and make them compete against each other. To create a bot, you have to write code!
 
-###Rules of the game
+### Rules of the game
 - A game has a 20x20 squares board. Each square can contain:
     - A bot
     - A power-up
@@ -29,7 +29,7 @@ The goal of this game is to create Bots and make them compete against each other
 - Power-up's will appear randomly on the game board
 
 
-####Server Responsibilities
+#### Server Responsibilities
 - Generate game board randomly
 - Keeping the state of various games
     - Keep the state of board
@@ -43,14 +43,14 @@ The goal of this game is to create Bots and make them compete against each other
 - Ask each bots for their move, giving them a context
 - Provide a game viewer
 
-####Client Responsibilities
+#### Client Responsibilities
 - Implement a Play() Method
 - Respond to server play request in under 100ms
 
-##Protocol
+## Protocol
 Client and server will talk a simple json protocol over TCP
 
-###To list existing game
+### To list existing game
 See existing game with remaining spot
 
 **Client**
@@ -108,7 +108,7 @@ The game will automatically start after 60 seconds
     {"response":"error", "message":"error message"}
 
 
-###To join a game
+### To join a game
 
 **Client**
 
@@ -128,7 +128,7 @@ The game will automatically start after 60 seconds
 
     {"response":"error", "message":"error message"}
 
-###To play a turn
+### To play a turn
 
 Server will contact the client every turn with the context
 
